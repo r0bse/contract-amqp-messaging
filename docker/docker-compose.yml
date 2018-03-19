@@ -1,0 +1,19 @@
+version: '2'
+services:
+
+  rabbitmq-service:
+    image: rabbitmq:3-management
+    hostname: rabbitmq-service
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    ports:
+      - 5672:5672
+      - 5671:5671
+      - 15672:15672
+    networks:
+      - networks 
+
+networks:
+  networks:
+    driver: bridge

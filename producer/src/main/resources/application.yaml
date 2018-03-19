@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: producer-service
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
+    time-zone: UTC
+  cloud:
+    stream:
+      bindings:
+        binders:
+          rabbit:
+            defaultCandidate: true
+            type: rabbit
+            environment:
+              spring:
+                rabbitmq:
+                  host: localhost
+                  username: admin
+                  password: admin
+                  port: 5672
+                  connection-timeout: 10000
+  rabbitmq:
+    host: localhost
+    username: admin
+    password: admin
+    port: 5672
+    connection-timeout: 10000
+    listener:
+      # no retry because of problems with messages without id
+      default-requeue-rejected: false
+
+amqp:
+  exchange: "resources"
+  resource:
+    created:
+      queue: "resources.created"
+      routingkey: "resource.created"
+    updated:
+      queue: "resources.updated"
+      routingkey: "resource.updated"
+
+
+
+stubrunner:
+  # central configuration of nexus-repository, alternative to setup in @AutoconfigureStubrunner annotation
+  #repositoryRoot: "https://url-to-nexus"
+  amqp:
+    enabled: true
+  # when spring-cloud-stream is on classpath, it needs to be deactivated for contract testing
+  stream:
+    enabled: false
+  integration:
+    enabled: false
