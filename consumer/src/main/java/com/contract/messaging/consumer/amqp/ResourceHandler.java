@@ -16,23 +16,13 @@ public class ResourceHandler {
     private static final Logger log = LoggerFactory.getLogger(ResourceHandler.class);
 
 
-    @RabbitListener(id="created", queues = "${amqp.resource.created.queue}")
-//    @RabbitListener(bindings = @QueueBinding(
-//        value = @Queue(value = "${amqp.resource.created.queue}", durable = "true", ignoreDeclarationExceptions = "true"),
-//        key = "${amqp.resource.created.routingkey}",
-//        exchange = @Exchange(value = "${amqp.exchange}", type = ExchangeTypes.TOPIC, durable = "true")
-//    )
-//    )
+    @RabbitListener(id="resources.created", queues = "${amqp.resource.created.queue}")
     public void handleResourceCreated(@Payload @Valid ResourceCreated resource) {
 
         log.info("Incoming event {}", resource);
     }
 
-    @RabbitListener(id="updated", queues = "${amqp.resource.updated.queue}")
-//    @RabbitListener(bindings = @QueueBinding(
-//        value = @Queue(value = "${amqp.resource.updated.queue}", durable = "true", ignoreDeclarationExceptions = "true"),
-//        key = "${amqp.resource.updated.routingkey}",
-//        exchange = @Exchange(value = "${amqp.exchange}", type = ExchangeTypes.TOPIC, durable = "true")))
+    @RabbitListener(id="resources.updated", queues = "${amqp.resource.updated.queue}")
     public void handleResourceUpdated(@Payload @Valid ResourceUpdated resource) {
 
         log.info("Incoming event {}", resource);
