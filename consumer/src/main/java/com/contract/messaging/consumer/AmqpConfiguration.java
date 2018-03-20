@@ -1,12 +1,21 @@
 package com.contract.messaging.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.ExchangeBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueBuilder;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.annotation.RabbitListenerConfigurer;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistrar;
 import org.springframework.amqp.support.converter.Jackson2JavaTypeMapper.TypePrecedence;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
@@ -19,6 +28,27 @@ import org.springframework.validation.Validator;
 @EnableRabbit
 @Configuration
 public class AmqpConfiguration implements RabbitListenerConfigurer{
+
+
+
+    private static final String X_DEAD_LETTER_EXCHANGE = "x-dead-letter-exchange";
+    private static final String X_DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key";
+    private static final String DEAD_LETTER_POSTFIX = ".dlx";
+
+    @Value("${amqp.exchange}")
+    private String resourceExchange;
+
+    @Value("${amqp.resource.created.queue}")
+    private String resourceCreatedQueue;
+
+    @Value("${amqp.resource.created.routingkey}")
+    private String resourceCreatedRoutingkey;
+
+    @Value("${amqp.resource.updated.queue}")
+    private String resourceUpdatedQueue;
+
+    @Value("${amqp.resource.updated.routingkey}")
+    private String resourceUpdatedRoutingkey;
 
     @Bean
     public MappingJackson2MessageConverter consumerJackson2MessageConverter(ObjectMapper objectMapper) {
@@ -33,6 +63,38 @@ public class AmqpConfiguration implements RabbitListenerConfigurer{
         jackson2JsonMessageConverter.setCreateMessageIds(true);
         jackson2JsonMessageConverter.setTypePrecedence(TypePrecedence.INFERRED);
         return jackson2JsonMessageConverter;
+    }
+
+    @Bean
+    public TopicExchange resourceExchange() {
+        return (TopicExchange) ExchangeBuilder.topicExchange(resourceExchange).durable(true).build();
+    }
+    @Bean
+    public Binding resourceCreatedBinding() {
+        return BindingBuilder.bind(resourceCreatedQueue()).to(resourceExchange())
+            .with(resourceCreatedRoutingkey);
+    }
+
+    @Bean
+    public Binding resourceUpdatedBinding() {
+        return BindingBuilder.bind(resourceUpdatedQueue()).to(resourceExchange())
+            .with(resourceUpdatedRoutingkey);
+    }
+
+
+    @Bean
+    public Queue resourceCreatedQueue() {
+        Map<String, Object> args = new HashMap<>();
+        args.put(X_DEAD_LETTER_EXCHANGE, resourceExchange);
+        args.put(X_DEAD_LETTER_ROUTING_KEY, resourceCreatedRoutingkey + DEAD_LETTER_POSTFIX);
+        return QueueBuilder.durable(resourceCreatedQueue).withArguments(args).build();
+    }
+    @Bean
+    public Queue resourceUpdatedQueue() {
+        Map<String, Object> args = new HashMap<>();
+        args.put(X_DEAD_LETTER_EXCHANGE, resourceExchange);
+        args.put(X_DEAD_LETTER_ROUTING_KEY, resourceUpdatedRoutingkey + DEAD_LETTER_POSTFIX);
+        return QueueBuilder.durable(resourceUpdatedQueue).withArguments(args).build();
     }
 
     @Override
