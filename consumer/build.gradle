@@ -1,10 +1,13 @@
 buildscript {
     ext {
-        springBootVersion = '1.5.6.RELEASE'
-        contractVersion = "1.1.2.RELEASE"
+        springBootVersion = '2.0.0.RELEASE'
+        contractVersion = "2.0.0.M7"
     }
     repositories {
         mavenCentral()
+        maven { url "http://repo.spring.io/snapshot" }
+        maven { url "http://repo.spring.io/milestone" }
+        maven { url "http://repo.spring.io/release" }
     }
     dependencies {
         classpath "org.springframework.cloud:spring-cloud-contract-gradle-plugin:$contractVersion"
@@ -27,7 +30,7 @@ repositories {
 
 
 ext {
-	springCloudVersion = 'Dalston.SR5'
+	springCloudVersion = 'Finchley.M8'
 }
 
 dependencies {
