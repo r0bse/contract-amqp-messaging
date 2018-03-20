@@ -10,7 +10,7 @@ Contract.make {
         sentTo 'resources'
         headers {
             messagingContentType(applicationJson())
-            header("amqp_receivedRoutingKey":"resource.updated") //entspricht dem routing key
+            header("amqp_receivedRoutingKey":"resource.updated")
         }
         body([
                 id    : $(consumer("1"), producer(regex("\\d+"))),

@@ -10,6 +10,7 @@ Contract.make {
         sentTo 'resources'
         headers {
             messagingContentType(applicationJson())
+            header("amqp_receivedRoutingKey":"resource.created")
         }
         body([
                 active: $(consumer(true), producer(regex(anyBoolean()))),
